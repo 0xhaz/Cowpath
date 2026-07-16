@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "cowpath"
 version = "0.1.0"
@@ -27,8 +31,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Fallback vector store if sqlite-vec wheels fight arm64 (techstacks §3, §8).
+# Fallback vector store if sqlite-vec wheels fight arm64.
 faiss = ["faiss-cpu"]
+
+[tool.setuptools]
+# The runnable packages (needed so `uv pip install -e .` can discover them —
+# several top-level dirs would otherwise make setuptools bail).
+packages = ["agent", "retrieval", "indexer", "frontend"]
 
 [tool.uv]
 # Pin to 3.11 — many DataHub/ML deps lag the newest CPython (system is 3.14).
