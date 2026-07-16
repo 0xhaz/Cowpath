@@ -18,11 +18,12 @@ __pycache__/
 retrieval/*.index
 retrieval/*.faiss
 
-# Internal planning / strategy docs — NOT for the public repo or presentation
+# Internal planning / strategy docs + presenter runbook — NOT for the public repo
 architecture.md
 techstacks.md
 workplan.md
 datahub-hackathon-ideas.md
+demo-scripts.md
 
 # Models / caches
 .cache/
