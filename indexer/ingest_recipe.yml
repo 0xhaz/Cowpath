@@ -1,0 +1,23 @@
+# sql-queries ingestion recipe — Phase 1 "free ride".
+# Feeds the synthesized NDJSON query log through DataHub's own SqlParsingAggregator:
+# creates Query entities, parses each SQL, links QuerySubjects to the referenced
+# snowflake datasets, and auto-dedups by normalized text.
+#
+# Run:  datahub ingest -c indexer/ingest_recipe.yml
+source:
+  type: sql-queries
+  config:
+    query_file: examples/query_log.json
+    platform: snowflake
+    # showcase-ecommerce loads snowflake datasets under this instance.
+    platform_instance: b2fd91
+    default_db: order_entry_db
+    default_schema: order_entry
+    # Emit column-level lineage where the parser can infer it.
+    usage:
+      bucket_duration: DAY
+
+sink:
+  type: datahub-rest
+  config:
+    server: http://localhost:8080

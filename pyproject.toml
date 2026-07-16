@@ -1,0 +1,34 @@
+[project]
+name = "cowpath"
+version = "0.1.0"
+description = "Query-History-to-Semantic-Index — reproduce DataHub Cloud's Context Intelligence on OSS DataHub Core."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "Apache-2.0" }
+dependencies = [
+    # DataHub layer
+    "acryl-datahub[sql-queries]",   # sql-queries extra pulls smart_open
+    "datahub-agent-context",
+    # indexer
+    "sqlglot",
+    "sentence-transformers",
+    # retrieval
+    "sqlite-vec",
+    # demo: execute generated SQL against a seeded stand-in warehouse
+    "duckdb",
+    # agent loop
+    "langchain",
+    "langchain-ollama",
+    "langchain-anthropic",
+    # supporting
+    "rich",
+    "pydantic",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+# Fallback vector store if sqlite-vec wheels fight arm64 (techstacks §3, §8).
+faiss = ["faiss-cpu"]
+
+[tool.uv]
+# Pin to 3.11 — many DataHub/ML deps lag the newest CPython (system is 3.14).

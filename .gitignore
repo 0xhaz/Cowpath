@@ -1,0 +1,36 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Env / secrets
+.env
+*.pat
+
+# Local vector store + seeded demo warehouse (generated artifacts)
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+retrieval/*.index
+retrieval/*.faiss
+
+# Internal planning / strategy docs — NOT for the public repo or presentation
+architecture.md
+techstacks.md
+workplan.md
+datahub-hackathon-ideas.md
+
+# Models / caches
+.cache/
+models/
+
+# OS
+.DS_Store
+
+# DataHub
+datahub/
+.datahub/
