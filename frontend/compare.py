@@ -14,6 +14,7 @@ recording reads cramped.
 
 from __future__ import annotations
 
+import re
 import sys
 
 from rich.console import Console
@@ -82,6 +83,15 @@ def _grand_total(res: Result):
     return None
 
 
+# Reconciliation is only valid on ADDITIVE aggregates — summing rows of an AVG /
+# MIN / MAX / MEDIAN is meaningless, so skip it for those.
+_NON_ADDITIVE = re.compile(r"\b(AVG|MEAN|MIN|MAX|MEDIAN|STDDEV|VARIANCE|PERCENTILE)\b", re.I)
+
+
+def _is_additive(sql: str) -> bool:
+    return not _NON_ADDITIVE.search(sql or "")
+
+
 def run(spec, client, store, llm) -> None:
     if isinstance(spec, str):
         spec = {"q": spec}
@@ -112,15 +122,20 @@ def run(spec, client, store, llm) -> None:
         )
     )
 
-    # Reconciliation headline — only when the question opts in (additive total,
-    # so summing rows is valid) and the two numbers actually diverge.
-    if spec.get("reconcile"):
+    # Reconciliation headline — show when the comparison is on an ADDITIVE total
+    # (summing rows is valid) and the two numbers actually diverge. Works whether
+    # the question came from the curated list or the CLI.
+    if _is_additive(before.sql) and _is_additive(after.sql):
         b_tot, a_tot = _grand_total(before_res), _grand_total(after_res)
         if b_tot is not None and a_tot is not None and abs(b_tot - a_tot) > 1e-6:
             diff = b_tot - a_tot
+            note = spec.get("reconcile") or (
+                "the schema-only query disagrees with how this metric was actually "
+                "computed in query history; the proven pattern reflects the real convention."
+            )
             console.print(Panel(
                 f"naive total [red]{b_tot:,.0f}[/]  vs  proven total [green]{a_tot:,.0f}[/]"
-                f"   →  off by [bold red]{diff:+,.0f}[/].  {spec['reconcile']}",
+                f"   →  off by [bold red]{diff:+,.0f}[/].  {note}",
                 border_style="yellow", title="Why the pattern matters"))
 
     if after.patterns:
